@@ -50,34 +50,34 @@ let pool = mysql.createPool({
 let daoTeacher = new daoTeachers.DAOTeachers(pool);
 //let daoAsk = new daoAsks.DAOAsk(pool);
 
-const ficherosEstaticos =path.join(__dirname, "public");
-app.use(express.static(ficherosEstaticos));
-app.set("view engine" , "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(bodyParser.urlencoded({ extended:false}));
+//const ficherosEstaticos =path.join(__dirname, "public");
+//app.use(express.static(ficherosEstaticos));
+//app.set("view engine" , "ejs");
+//app.set("views", path.join(__dirname, "views"));
+//app.use(bodyParser.urlencoded({ extended:false}));
 
 
 /*Página de inicio */
-app.get("/", (request,response)=>{
-    response.redirect("/practica1.html"/*/Examenes.html*/);
+app.get("/", (response)=>{
+    response.render("/login.html");
 });
 
 /*Inicio sesion*/
-app.post("/EntrarUsu.html", (request, response)=>{
+app.post("/login", (request, response)=>{
     daoTeacher.isUserCorrect(request.body.user, request.body.password, (error,exito)=>{
         if(error){ let mensajeError= error.message;
-        response.render("Entrar", {mensajeError:mensajeError});
+        response.redirect("/");
         }else{
             if(!exito){
-                response.render("Entrar", {mensajeError:"Usuario y/o contraseña no validos"});
+                response.redirect("/");// response.render("Entrar", {mensajeError:"Usuario y/o contraseña no validos"});
             }else{
                 daoTeacher.isDepartmentTeacher(request.body.user, (error,exito)=>{
                     if(error){let mensajeError=error.message;
-                    response.render("Entrar", {mensajeError:mensajeError});
+                        response.redirect("/");//response.render("Entrar", {mensajeError:mensajeError});
                     }else{
                         request.session.currentUser= request.body.user;
                         request.session.puntos = 0;
-                        response.redirect("/Perfil.html"/*/Aulas.html*/);
+                        response.redirect("/Aulas.html");
                     }
                 });                
             }
@@ -85,23 +85,13 @@ app.post("/EntrarUsu.html", (request, response)=>{
     });
 });
 
-app.get("/Entrar.html", (request, response) => {
-    response.render("Entrar", {mensajeError:undefined});
+app.get("/login.html", (response) => {
+    response.redirect("/");
 
 });
 
-app.get("/Perfil.html"/*/Aulas.html*/, (request,response)=>{
-    daoUser.getAllDatas(request.session.currentUser, (error,datos)=>{
-        request.session.puntos = datos.puntos;
-        datos.fecha = Number(daoUser.edad(datos.fecha));
-        if(!error){
-            response.render("Perfil", {datos:datos, puntos:request.session.puntos, currentUser:request.session.currentUser});
-        }
-        else{
-            console.log(error);
-            response.end();
-        }
-    });
+app.get("/Aulas.html", (request,response)=>{
+    response.render("/Aulas.html");
 });
 
 app.get("/Desconectar.html", (request,response)=>{
